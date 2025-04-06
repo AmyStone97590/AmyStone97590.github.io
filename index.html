@@ -8,19 +8,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Site GitHub Pages</title>
     <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #1e1e1e;
+      color: #f0f0f0;
+      text-align: center;
+      padding: 2em;
+    }
+
+    #player {
+      width: 100%;
+      max-width: 600px;
+      margin: 2em auto;
+    }
+
+    .title {
+      margin-top: 1em;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Bienvenue sur mon site !</h1>
-    </header>
-    <section>
-        <p>Voici mon site créé avec GitHub Pages. Bienvenue</p>
-    </section>
-    <p>Voici une formule en ligne : \( \int_{2}^{3} x \, dx \).</p>
 
-    <p>Voici une formule centrée :</p> 
-    \[
-\int_{2}^{3} x \, dx = \frac{x^2}{2} \Big|_2^3 
-\]
-</body>
+    <h1>Rock Progressif</h1>
+    <div class="title" id="trackTitle">Chargement...</div>
+    <audio id="player" controls></audio>
+  
+    <script>
+      const playlist = [
+        { title: "Piste 1 - Introduction", file: "piste1.mp3" },
+        { title: "Piste 2 - Chill vibes", file: "piste2.mp3" },
+        { title: "Piste 3 - Outro", file: "piste3.mp3" }
+      ];
+  
+      const player = document.getElementById("player");
+      const title = document.getElementById("trackTitle");
+  
+      let current = 0;
+  
+      function loadTrack(index) {
+        const track = playlist[index];
+        player.src = track.file;
+        title.textContent = track.title;
+      }
+  
+      player.addEventListener("ended", () => {
+        current = (current + 1) % playlist.length;
+        loadTrack(current);
+        player.play();
+      });
+  
+      // Démarre avec la première piste
+      loadTrack(current);
+    </script>
+  
+  </body>
+
+
 </html>
