@@ -1,70 +1,168 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>   
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Site GitHub Pages</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Ma Playlist</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #1e1e1e;
-      color: #f0f0f0;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
       text-align: center;
       padding: 2em;
+      backdrop-filter: brightness(0.5);
     }
 
-    #player {
-      width: 100%;
+    .player-box {
+      background: rgba(0,0,0,0.6);
+      padding: 2em;
+      border-radius: 12px;
       max-width: 600px;
-      margin: 2em auto;
+      margin: auto;
     }
 
     .title {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    audio {
+      width: 100%;
       margin-top: 1em;
-      font-size: 1.2em;
+    }
+
+    .playlist {
+      text-align: left;
+      margin-top: 1.5em;
+    }
+
+    .track {
+      padding: 0.3em 0;
+      cursor: pointer;
+    }
+
+    .track.active {
       font-weight: bold;
+      color: #00ffff;
+    }
+
+    .controls {
+      margin-top: 1.5em;
+    }
+
+    button {
+      padding: 0.6em 1em;
+      margin: 0.3em;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
 
-    <h1>Rock Progressif</h1>
+  <div class="player-box">
+    <h1>🎧 Ma Playlist</h1>
     <div class="title" id="trackTitle">Chargement...</div>
     <audio id="player" controls></audio>
-    
-    <script>
-      const playlist = [
-        { title: "Lynyrd Skynyrd - Free Bird", file: "musique/piste1.mp3" },
-        { title: "Yes - Roundabout", file: "musique/piste2.mp3" },
-        { title: "Guns N' Roses - November Rain", file: "musique/piste3.mp3" }
-      ];
-  
-      const player = document.getElementById("player");
-      const title = document.getElementById("trackTitle");
-  
-      let current = 0;
-  
-      function loadTrack(index) {
-        const track = playlist[index];
-        player.src = track.file;
-        title.textContent = track.title;
-      }
-  
-      player.addEventListener("ended", () => {
+
+    <div class="controls">
+      <button onclick="nextTrack()">⏭️ Suivant</button>
+      <button onclick="toggleRandom()">🔀 Aléatoire : <span id="randomState">Off</span></button>
+      <button onclick="toggleLoop()">🔁 Boucle : <span id="loopState">Off</span></button>
+    </div>
+
+    <div class="playlist" id="playlistDisplay"></div>
+  </div>
+
+  <script>
+    const playlist = [
+      { title: "Lynyrd Skynyrd - Free Bird", file: "musique/piste1.mp3" },
+      { title: "Yes - Roundabout", file: "musique/piste2.mp3" },
+      { title: "Guns N' Roses - November Rain", file: "musique/piste3.mp3" }
+    ];
+
+    let current = 0;
+    let isRandom = false;
+    let isLooping = false;
+
+    const player = document.getElementById("player");
+    const title = document.getElementById("trackTitle");
+    const playlistDisplay = document.getElementById("playlistDisplay");
+    const randomState = document.getElementById("randomState");
+    const loopState = document.getElementById("loopState");
+
+    function loadTrack(index) {
+      const track = playlist[index];
+      player.src = track.file;
+      title.textContent = track.title;
+      current = index;
+      highlightCurrent();
+    }
+
+    function nextTrack() {
+      if (isRandom) {
+        let next;
+        do {
+          next = Math.floor(Math.random() * playlist.length);
+        } while (next === current);
+        loadTrack(next);
+      } else {
         current = (current + 1) % playlist.length;
         loadTrack(current);
-        player.play();
+      }
+      player.play();
+    }
+
+    function toggleRandom() {
+      isRandom = !isRandom;
+      randomState.textContent = isRandom ? "On" : "Off";
+    }
+
+    function toggleLoop() {
+      isLooping = !isLooping;
+      player.loop = isLooping;
+      loopState.textContent = isLooping ? "On" : "Off";
+    }
+
+    player.addEventListener("ended", () => {
+      if (!isLooping) nextTrack();
+    });
+
+    function highlightCurrent() {
+      const tracks = document.querySelectorAll(".track");
+      tracks.forEach((trackEl, index) => {
+        trackEl.classList.toggle("active", index === current);
       });
-  
-      // Démarre avec la première piste
-      loadTrack(current);
-    </script>
-  
-  </body>
+    }
 
+    function renderPlaylist() {
+      playlistDisplay.innerHTML = "";
+      playlist.forEach((track, index) => {
+        const div = document.createElement("div");
+        div.textContent = `🎵 ${track.title}`;
+        div.classList.add("track");
+        div.onclick = () => {
+          loadTrack(index);
+          player.play();
+        };
+        playlistDisplay.appendChild(div);
+      });
+      highlightCurrent();
+    }
 
+    // Init
+    renderPlaylist();
+    loadTrack(current);
+  </script>
+
+</body>
 </html>
